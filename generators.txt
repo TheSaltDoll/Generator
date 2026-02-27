@@ -52,3 +52,10 @@ Ace|1
 Jack|1
 Queen|1
 King|1
+
+[Hegemony Class:Pick Class]
+repeat=no
+Working Class|1
+Middle Class|1
+Capitalist|1
+State|1

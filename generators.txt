@@ -53,6 +53,30 @@ Jack|1
 Queen|1
 King|1
 
+[Nemesis:Pick Character]
+repeat=no
+Captain|1
+Mechanic|1
+Pilot|1
+Scientist|1
+Scout|1
+Soldier|1
+Medic|1
+CEO|1
+Android|1
+Bounty Hunter|1
+Convict|1
+Psychologist|1
+
+[Nemesis:Health-Adult]
+repeat=yes
+2|2
+3|4
+4|5
+5|5
+6|2
+Retreat|2
+
 [Hegemony Class:Pick Class]
 repeat=no
 Working Class|1

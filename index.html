@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RandGen">
+<meta name="theme-color" content="#0a0a0f">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>RandGen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;
+  --surface:#14141f;
+  --surface2:#1c1c2e;
+  --border:#2a2a40;
+  --text:#e8e8f0;
+  --text-dim:#8888a0;
+  --accent:#6c5ce7;
+  --accent-glow:#6c5ce740;
+  --accent2:#00cec9;
+  --danger:#ff6b6b;
+  --success:#00b894;
+  --radius:14px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+html,body{
+  height:100%;overflow:hidden;
+  background:var(--bg);color:var(--text);
+  font-family:'Outfit',sans-serif;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-font-smoothing:antialiased;
+}
+body{
+  display:flex;flex-direction:column;
+  padding-top:var(--safe-top);
+  padding-bottom:var(--safe-bottom);
+}
+
+/* ── Header ── */
+.header{
+  padding:16px 20px 12px;
+  display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+  background:var(--bg);
+  position:relative;z-index:10;
+}
+.header .back-btn{
+  display:none;
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text);font-size:18px;
+  width:36px;height:36px;border-radius:10px;
+  cursor:pointer;place-items:center;
+  transition:background .2s;
+}
+.header .back-btn:active{background:var(--accent);border-color:var(--accent)}
+.header .back-btn.visible{display:grid}
+.header h1{
+  font-family:'JetBrains Mono',monospace;
+  font-size:18px;font-weight:700;
+  letter-spacing:-0.5px;
+  color:var(--accent2);
+}
+.header .subtitle{
+  font-size:12px;color:var(--text-dim);
+  font-weight:400;margin-left:auto;
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* ── Screens ── */
+.screen{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  padding:16px 20px 32px;
+}
+.screen.hidden{display:none}
+
+/* ── Tag list ── */
+.tag-list{display:flex;flex-direction:column;gap:10px}
+.tag-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:18px 20px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:transform .15s,border-color .2s,box-shadow .2s;
+}
+.tag-card:active{
+  transform:scale(0.97);
+  border-color:var(--accent);
+  box-shadow:0 0 20px var(--accent-glow);
+}
+.tag-card .tag-name{
+  font-weight:600;font-size:17px;
+  letter-spacing:-0.3px;
+}
+.tag-card .tag-count{
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;color:var(--text-dim);
+  background:var(--surface2);
+  padding:4px 10px;border-radius:8px;
+}
+.tag-card .arrow{color:var(--text-dim);font-size:18px}
+
+/* ── Generator buttons ── */
+.gen-list{display:flex;flex-direction:column;gap:10px}
+.gen-btn{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px 20px;
+  cursor:pointer;color:var(--text);
+  font-family:'Outfit',sans-serif;
+  font-size:16px;font-weight:500;
+  text-align:left;
+  transition:transform .15s,border-color .2s,box-shadow .2s;
+  position:relative;overflow:hidden;
+}
+.gen-btn:active{
+  transform:scale(0.97);
+  border-color:var(--accent);
+  box-shadow:0 0 20px var(--accent-glow);
+}
+.gen-btn .remaining{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--text-dim);
+  margin-top:4px;
+}
+.gen-btn.exhausted{
+  opacity:0.35;pointer-events:none;
+  border-style:dashed;
+}
+
+/* ── Result display ── */
+.result-area{
+  margin-top:20px;
+  min-height:100px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.result-box{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:28px 24px;
+  width:100%;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.result-box::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--accent-glow),transparent 60%);
+  opacity:0;transition:opacity .4s;
+  pointer-events:none;
+}
+.result-box.flash::before{opacity:1}
+.result-label{
+  font-size:11px;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--text-dim);
+  margin-bottom:10px;
+  font-family:'JetBrains Mono',monospace;
+}
+.result-value{
+  font-size:26px;font-weight:700;
+  letter-spacing:-0.5px;
+  line-height:1.3;
+  transition:opacity .15s,transform .15s;
+}
+.result-value.exit{opacity:0;transform:translateY(-12px)}
+.result-value.enter{opacity:0;transform:translateY(12px)}
+.result-placeholder{
+  color:var(--text-dim);font-size:15px;
+  font-style:italic;
+}
+
+/* ── Controls ── */
+.controls{
+  margin-top:20px;
+  display:flex;flex-direction:column;gap:14px;
+}
+.control-row{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:14px 18px;
+}
+.control-row .label{
+  font-size:14px;font-weight:500;
+  color:var(--text);
+}
+.control-row .label small{
+  display:block;font-size:11px;
+  color:var(--text-dim);font-weight:400;
+  margin-top:2px;
+}
+
+/* Toggle switch */
+.toggle{
+  width:50px;height:28px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:14px;
+  position:relative;cursor:pointer;
+  transition:background .25s,border-color .25s;
+  flex-shrink:0;
+}
+.toggle.on{background:var(--accent);border-color:var(--accent)}
+.toggle .knob{
+  width:22px;height:22px;
+  background:#fff;border-radius:50%;
+  position:absolute;top:2px;left:2px;
+  transition:transform .25s cubic-bezier(.4,.0,.2,1);
+  box-shadow:0 1px 4px #0003;
+}
+.toggle.on .knob{transform:translateX(22px)}
+
+/* Reset button */
+.reset-btn{
+  background:none;border:1px solid var(--danger);
+  color:var(--danger);
+  font-family:'Outfit',sans-serif;
+  font-size:14px;font-weight:600;
+  padding:10px 20px;border-radius:10px;
+  cursor:pointer;
+  transition:background .2s,color .2s;
+}
+.reset-btn:active{background:var(--danger);color:#fff}
+
+/* ── Empty state ── */
+.empty{
+  text-align:center;padding:60px 20px;
+  color:var(--text-dim);
+}
+.empty .icon{font-size:48px;margin-bottom:16px;opacity:0.5}
+.empty p{font-size:14px;line-height:1.6}
+
+/* ── Animations ── */
+@keyframes fadeSlideIn{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.animate-in{animation:fadeSlideIn .3s ease both}
+.animate-in:nth-child(1){animation-delay:0s}
+.animate-in:nth-child(2){animation-delay:.04s}
+.animate-in:nth-child(3){animation-delay:.08s}
+.animate-in:nth-child(4){animation-delay:.12s}
+.animate-in:nth-child(5){animation-delay:.16s}
+.animate-in:nth-child(6){animation-delay:.2s}
+.animate-in:nth-child(7){animation-delay:.24s}
+.animate-in:nth-child(8){animation-delay:.28s}
+.animate-in:nth-child(9){animation-delay:.32s}
+.animate-in:nth-child(10){animation-delay:.36s}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:0;height:0}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <button class="back-btn" id="backBtn" aria-label="Back">←</button>
+  <h1 id="headerTitle">RandGen</h1>
+  <span class="subtitle" id="headerSub"></span>
+</div>
+
+<!-- Tag selection screen -->
+<div class="screen" id="tagScreen">
+  <div class="tag-list" id="tagList"></div>
+</div>
+
+<!-- Generator screen -->
+<div class="screen hidden" id="genScreen">
+  <div class="gen-list" id="genList"></div>
+  <div class="result-area">
+    <div class="result-box" id="resultBox">
+      <div class="result-label">Result</div>
+      <div class="result-value" id="resultValue">
+        <span class="result-placeholder">Tap a generator above</span>
+      </div>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="control-row">
+      <div class="label">
+        No Repeats
+        <small>Draw without replacement</small>
+      </div>
+      <div class="toggle" id="noRepeatToggle" role="switch" aria-checked="false">
+        <div class="knob"></div>
+      </div>
+    </div>
+    <div class="control-row" style="justify-content:center">
+      <button class="reset-btn" id="resetBtn">Reset All Generators</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Config parser ──
+function parseConfig(text) {
+  const generators = [];
+  let current = null;
+  for (const raw of text.split('\n')) {
+    const line = raw.trim();
+    if (!line || line.startsWith('#') || line.startsWith(';')) continue;
+    const header = line.match(/^\[(.+?):(.+?)\]$/);
+    if (header) {
+      current = {
+        tag: header[1].trim(),
+        name: header[2].trim(),
+        outcomes: []
+      };
+      generators.push(current);
+    } else if (current) {
+      const parts = line.split('|');
+      if (parts.length >= 2) {
+        const weight = parseInt(parts[parts.length - 1], 10);
+        const text = parts.slice(0, -1).join('|').trim();
+        if (text && !isNaN(weight) && weight > 0) {
+          current.outcomes.push({ text, weight });
+        }
+      }
+    }
+  }
+  return generators;
+}
+
+// ── State ──
+let allGenerators = [];
+let tags = [];
+let currentTag = null;
+let noRepeat = false;
+// Track remaining outcomes per generator index
+const remaining = {};
+
+// ── Weighted random pick ──
+function weightedPick(outcomes) {
+  const total = outcomes.reduce((s, o) => s + o.weight, 0);
+  if (total === 0) return null;
+  let r = Math.random() * total;
+  for (const o of outcomes) {
+    r -= o.weight;
+    if (r <= 0) return o;
+  }
+  return outcomes[outcomes.length - 1];
+}
+
+// ── DOM refs ──
+const backBtn = document.getElementById('backBtn');
+const headerTitle = document.getElementById('headerTitle');
+const headerSub = document.getElementById('headerSub');
+const tagScreen = document.getElementById('tagScreen');
+const genScreen = document.getElementById('genScreen');
+const tagList = document.getElementById('tagList');
+const genList = document.getElementById('genList');
+const resultBox = document.getElementById('resultBox');
+const resultValue = document.getElementById('resultValue');
+const noRepeatToggle = document.getElementById('noRepeatToggle');
+const resetBtn = document.getElementById('resetBtn');
+
+// ── Render tags ──
+function renderTags() {
+  tagList.innerHTML = '';
+  tags.forEach((tag, i) => {
+    const count = allGenerators.filter(g => g.tag === tag).length;
+    const card = document.createElement('div');
+    card.className = 'tag-card animate-in';
+    card.innerHTML = `
+      <span class="tag-name">${tag}</span>
+      <span class="tag-count">${count} gen${count !== 1 ? 's' : ''}</span>
+    `;
+    card.addEventListener('click', () => selectTag(tag));
+    tagList.appendChild(card);
+  });
+  if (tags.length === 0) {
+    tagList.innerHTML = `<div class="empty">
+      <div class="icon">⚙️</div>
+      <p>No generators found.<br>Edit <strong>generators.txt</strong> and redeploy.</p>
+    </div>`;
+  }
+}
+
+// ── Select tag ──
+function selectTag(tag) {
+  currentTag = tag;
+  tagScreen.classList.add('hidden');
+  genScreen.classList.remove('hidden');
+  backBtn.classList.add('visible');
+  headerTitle.textContent = tag;
+  const gens = allGenerators.filter(g => g.tag === tag);
+  headerSub.textContent = gens.length + ' generator' + (gens.length !== 1 ? 's' : '');
+  resultValue.innerHTML = '<span class="result-placeholder">Tap a generator above</span>';
+  renderGenerators();
+}
+
+// ── Back ──
+function goBack() {
+  currentTag = null;
+  genScreen.classList.add('hidden');
+  tagScreen.classList.remove('hidden');
+  backBtn.classList.remove('visible');
+  headerTitle.textContent = 'RandGen';
+  headerSub.textContent = '';
+}
+backBtn.addEventListener('click', goBack);
+
+// ── Render generators ──
+function renderGenerators() {
+  genList.innerHTML = '';
+  const gens = allGenerators.filter(g => g.tag === currentTag);
+  gens.forEach((gen, localIdx) => {
+    const globalIdx = allGenerators.indexOf(gen);
+    const btn = document.createElement('button');
+    btn.className = 'gen-btn animate-in';
+    
+    const rem = getRemaining(globalIdx);
+    const isExhausted = noRepeat && rem.length === 0;
+    if (isExhausted) btn.classList.add('exhausted');
+    
+    let inner = `<div>${gen.name}</div>`;
+    if (noRepeat) {
+      const total = gen.outcomes.reduce((s, o) => s + o.weight, 0);
+      const remTotal = rem.reduce((s, o) => s + o.weight, 0);
+      inner += `<div class="remaining">${rem.length}/${gen.outcomes.length} outcomes left</div>`;
+    }
+    btn.innerHTML = inner;
+    
+    btn.addEventListener('click', () => generate(globalIdx));
+    genList.appendChild(btn);
+  });
+}
+
+// ── Get remaining outcomes ──
+function getRemaining(idx) {
+  if (!(idx in remaining)) {
+    remaining[idx] = [...allGenerators[idx].outcomes];
+  }
+  return remaining[idx];
+}
+
+// ── Generate ──
+function generate(idx) {
+  const gen = allGenerators[idx];
+  let pool, picked;
+  
+  if (noRepeat) {
+    pool = getRemaining(idx);
+    if (pool.length === 0) return;
+    picked = weightedPick(pool);
+    if (picked) {
+      const pi = pool.indexOf(picked);
+      pool.splice(pi, 1);
+      remaining[idx] = pool;
+    }
+  } else {
+    pool = gen.outcomes;
+    picked = weightedPick(pool);
+  }
+  
+  if (!picked) return;
+  
+  // Animate result
+  resultValue.classList.add('exit');
+  resultBox.classList.remove('flash');
+  
+  setTimeout(() => {
+    resultValue.textContent = picked.text;
+    resultValue.classList.remove('exit');
+    resultValue.classList.add('enter');
+    // Force reflow
+    void resultBox.offsetWidth;
+    resultBox.classList.add('flash');
+    
+    setTimeout(() => {
+      resultValue.classList.remove('enter');
+    }, 20);
+    
+    setTimeout(() => {
+      resultBox.classList.remove('flash');
+    }, 500);
+  }, 160);
+  
+  // Update generator buttons
+  renderGenerators();
+}
+
+// ── Toggle no-repeat ──
+noRepeatToggle.addEventListener('click', () => {
+  noRepeat = !noRepeat;
+  noRepeatToggle.classList.toggle('on', noRepeat);
+  noRepeatToggle.setAttribute('aria-checked', noRepeat);
+  if (currentTag) renderGenerators();
+});
+
+// ── Reset ──
+resetBtn.addEventListener('click', () => {
+  // Clear all remaining pools
+  for (const key in remaining) delete remaining[key];
+  if (currentTag) renderGenerators();
+  // Flash feedback
+  resetBtn.textContent = '✓ Reset!';
+  resetBtn.style.borderColor = 'var(--success)';
+  resetBtn.style.color = 'var(--success)';
+  setTimeout(() => {
+    resetBtn.textContent = 'Reset All Generators';
+    resetBtn.style.borderColor = '';
+    resetBtn.style.color = '';
+  }, 1000);
+});
+
+// ── Load config ──
+async function init() {
+  try {
+    const resp = await fetch('generators.txt');
+    const text = await resp.text();
+    allGenerators = parseConfig(text);
+    // Extract unique tags in order
+    const seen = new Set();
+    for (const g of allGenerators) {
+      if (!seen.has(g.tag)) {
+        seen.add(g.tag);
+        tags.push(g.tag);
+      }
+    }
+    renderTags();
+  } catch (e) {
+    tagList.innerHTML = `<div class="empty">
+      <div class="icon">⚠️</div>
+      <p>Could not load <strong>generators.txt</strong><br>${e.message}</p>
+    </div>`;
+  }
+}
+
+init();
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
+</script>
+</body>
+</html>

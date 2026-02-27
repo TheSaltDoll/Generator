@@ -20,7 +20,7 @@ Bounty Hunter|1
 Convict|1
 Psychologist|1
 
-[Nemesis:Health-Adult]
+[Nemesis:Health-Adult/Creeper]
 repeat=yes
 2|2
 3|4
@@ -29,7 +29,7 @@ repeat=yes
 6|2
 Retreat|2
 
-[Nemesis:Health-Queen]
+[Nemesis:Health-Queen/Breeder]
 repeat=yes
 Retreat|1900
 4|100

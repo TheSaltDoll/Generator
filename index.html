@@ -138,6 +138,10 @@ body{
   opacity:0.35;pointer-events:none;
   border-style:dashed;
 }
+.gen-btn.active{
+  border-color:var(--accent);
+  box-shadow:0 0 12px var(--accent-glow);
+}
 
 /* ── Result display ── */
 .result-area{
@@ -293,9 +297,9 @@ body{
     <div class="control-row">
       <div class="label">
         No Repeats
-        <small>Draw without replacement</small>
+        <small id="toggleLabel">Select a generator</small>
       </div>
-      <div class="toggle" id="noRepeatToggle" role="switch" aria-checked="false">
+      <div class="toggle" id="noRepeatToggle" role="switch" aria-checked="false" style="opacity:0.4;pointer-events:none">
         <div class="knob"></div>
       </div>
     </div>
@@ -318,10 +322,18 @@ function parseConfig(text) {
       current = {
         tag: header[1].trim(),
         name: header[2].trim(),
+        repeat: true, // default: repeatable
         outcomes: []
       };
       generators.push(current);
     } else if (current) {
+      // Check for repeat= directive
+      const repeatMatch = line.match(/^repeat\s*=\s*(yes|no|true|false)$/i);
+      if (repeatMatch) {
+        const val = repeatMatch[1].toLowerCase();
+        current.repeat = (val === 'yes' || val === 'true');
+        continue;
+      }
       const parts = line.split('|');
       if (parts.length >= 2) {
         const weight = parseInt(parts[parts.length - 1], 10);
@@ -339,7 +351,9 @@ function parseConfig(text) {
 let allGenerators = [];
 let tags = [];
 let currentTag = null;
-let noRepeat = false;
+let activeGenIdx = null; // which generator is currently selected
+// Per-generator no-repeat state (initialized from config defaults)
+const noRepeatState = {};
 // Track remaining outcomes per generator index
 const remaining = {};
 
@@ -366,6 +380,7 @@ const genList = document.getElementById('genList');
 const resultBox = document.getElementById('resultBox');
 const resultValue = document.getElementById('resultValue');
 const noRepeatToggle = document.getElementById('noRepeatToggle');
+const toggleLabel = document.getElementById('toggleLabel');
 const resetBtn = document.getElementById('resetBtn');
 
 // ── Render tags ──
@@ -393,6 +408,7 @@ function renderTags() {
 // ── Select tag ──
 function selectTag(tag) {
   currentTag = tag;
+  activeGenIdx = null;
   tagScreen.classList.add('hidden');
   genScreen.classList.remove('hidden');
   backBtn.classList.add('visible');
@@ -400,6 +416,7 @@ function selectTag(tag) {
   const gens = allGenerators.filter(g => g.tag === tag);
   headerSub.textContent = gens.length + ' generator' + (gens.length !== 1 ? 's' : '');
   resultValue.innerHTML = '<span class="result-placeholder">Tap a generator above</span>';
+  updateToggleUI();
   renderGenerators();
 }
 
@@ -414,24 +431,52 @@ function goBack() {
 }
 backBtn.addEventListener('click', goBack);
 
+// ── Get noRepeat for a generator (initialize from config default) ──
+function isNoRepeat(idx) {
+  if (!(idx in noRepeatState)) {
+    noRepeatState[idx] = !allGenerators[idx].repeat;
+  }
+  return noRepeatState[idx];
+}
+
+// ── Update toggle UI to reflect active generator ──
+function updateToggleUI() {
+  if (activeGenIdx !== null) {
+    const nr = isNoRepeat(activeGenIdx);
+    noRepeatToggle.classList.toggle('on', nr);
+    noRepeatToggle.setAttribute('aria-checked', nr);
+    noRepeatToggle.style.opacity = '1';
+    noRepeatToggle.style.pointerEvents = '';
+    toggleLabel.textContent = allGenerators[activeGenIdx].name;
+  } else {
+    noRepeatToggle.classList.remove('on');
+    noRepeatToggle.setAttribute('aria-checked', 'false');
+    noRepeatToggle.style.opacity = '0.4';
+    noRepeatToggle.style.pointerEvents = 'none';
+    toggleLabel.textContent = 'Select a generator';
+  }
+}
+
 // ── Render generators ──
 function renderGenerators() {
   genList.innerHTML = '';
   const gens = allGenerators.filter(g => g.tag === currentTag);
   gens.forEach((gen, localIdx) => {
     const globalIdx = allGenerators.indexOf(gen);
+    const nr = isNoRepeat(globalIdx);
     const btn = document.createElement('button');
     btn.className = 'gen-btn animate-in';
+    if (globalIdx === activeGenIdx) btn.classList.add('active');
     
     const rem = getRemaining(globalIdx);
-    const isExhausted = noRepeat && rem.length === 0;
+    const isExhausted = nr && rem.length === 0;
     if (isExhausted) btn.classList.add('exhausted');
     
     let inner = `<div>${gen.name}</div>`;
-    if (noRepeat) {
-      const total = gen.outcomes.reduce((s, o) => s + o.weight, 0);
-      const remTotal = rem.reduce((s, o) => s + o.weight, 0);
-      inner += `<div class="remaining">${rem.length}/${gen.outcomes.length} outcomes left</div>`;
+    if (nr) {
+      inner += `<div class="remaining">${rem.length}/${gen.outcomes.length} left · no repeats</div>`;
+    } else {
+      inner += `<div class="remaining" style="color:var(--accent2)">repeatable</div>`;
     }
     btn.innerHTML = inner;
     
@@ -451,9 +496,13 @@ function getRemaining(idx) {
 // ── Generate ──
 function generate(idx) {
   const gen = allGenerators[idx];
+  const nr = isNoRepeat(idx);
   let pool, picked;
   
-  if (noRepeat) {
+  activeGenIdx = idx;
+  updateToggleUI();
+  
+  if (nr) {
     pool = getRemaining(idx);
     if (pool.length === 0) return;
     picked = weightedPick(pool);
@@ -494,18 +543,21 @@ function generate(idx) {
   renderGenerators();
 }
 
-// ── Toggle no-repeat ──
+// ── Toggle no-repeat for active generator ──
 noRepeatToggle.addEventListener('click', () => {
-  noRepeat = !noRepeat;
-  noRepeatToggle.classList.toggle('on', noRepeat);
-  noRepeatToggle.setAttribute('aria-checked', noRepeat);
+  if (activeGenIdx === null) return;
+  noRepeatState[activeGenIdx] = !isNoRepeat(activeGenIdx);
+  updateToggleUI();
   if (currentTag) renderGenerators();
 });
 
 // ── Reset ──
 resetBtn.addEventListener('click', () => {
-  // Clear all remaining pools
+  // Clear all remaining pools and reset repeat states to config defaults
   for (const key in remaining) delete remaining[key];
+  for (const key in noRepeatState) delete noRepeatState[key];
+  activeGenIdx = null;
+  updateToggleUI();
   if (currentTag) renderGenerators();
   // Flash feedback
   resetBtn.textContent = '✓ Reset!';

@@ -108,7 +108,6 @@ body{
   background:var(--surface2);
   padding:4px 10px;border-radius:8px;
 }
-.tag-card .arrow{color:var(--text-dim);font-size:18px}
 
 /* ── Generator buttons ── */
 .gen-list{display:flex;flex-direction:column;gap:10px}
@@ -163,7 +162,7 @@ body{
 .result-box::before{
   content:'';position:absolute;inset:0;
   background:linear-gradient(135deg,var(--accent-glow),transparent 60%);
-  opacity:0;transition:opacity .4s;
+  opacity:0;transition:opacity .5s;
   pointer-events:none;
 }
 .result-box.flash::before{opacity:1}
@@ -177,13 +176,80 @@ body{
   font-size:26px;font-weight:700;
   letter-spacing:-0.5px;
   line-height:1.3;
-  transition:opacity .15s,transform .15s;
+  transition:opacity .25s ease,transform .25s ease;
 }
-.result-value.exit{opacity:0;transform:translateY(-12px)}
-.result-value.enter{opacity:0;transform:translateY(12px)}
+.result-value.exit{opacity:0;transform:translateY(-16px) scale(0.95)}
+.result-value.enter{opacity:0;transform:translateY(16px) scale(0.95)}
 .result-placeholder{
   color:var(--text-dim);font-size:15px;
   font-style:italic;
+}
+.result-chance{
+  position:absolute;
+  top:10px;right:14px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--text-dim);
+  opacity:0;
+  transition:opacity .3s;
+}
+.result-chance.visible{opacity:1}
+
+/* ── Frequency tracker ── */
+.freq-section{
+  margin-top:16px;
+}
+.freq-section.hidden{display:none}
+.freq-header{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--text-dim);
+  margin-bottom:8px;
+  padding:0 4px;
+}
+.freq-table{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+.freq-row{
+  display:flex;align-items:center;
+  padding:10px 14px;
+  gap:10px;
+  border-bottom:1px solid var(--border);
+  animation:fadeSlideIn .25s ease both;
+}
+.freq-row:last-child{border-bottom:none}
+.freq-outcome{
+  flex:1;font-size:13px;font-weight:500;
+  min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.freq-actual{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;font-weight:600;
+  color:var(--accent2);
+  min-width:28px;text-align:right;
+}
+.freq-expected{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;
+  color:var(--text-dim);
+  min-width:65px;text-align:right;
+}
+.freq-bar-bg{
+  width:60px;height:6px;
+  background:var(--surface2);
+  border-radius:3px;
+  overflow:hidden;
+  flex-shrink:0;
+}
+.freq-bar{
+  height:100%;
+  background:var(--accent);
+  border-radius:3px;
+  transition:width .3s ease;
 }
 
 /* ── Controls ── */
@@ -265,7 +331,6 @@ body{
 .animate-in:nth-child(9){animation-delay:.32s}
 .animate-in:nth-child(10){animation-delay:.36s}
 
-/* Scrollbar */
 ::-webkit-scrollbar{width:0;height:0}
 </style>
 </head>
@@ -285,14 +350,22 @@ body{
 <!-- Generator screen -->
 <div class="screen hidden" id="genScreen">
   <div class="gen-list" id="genList"></div>
+
   <div class="result-area">
     <div class="result-box" id="resultBox">
+      <span class="result-chance" id="resultChance"></span>
       <div class="result-label">Result</div>
       <div class="result-value" id="resultValue">
         <span class="result-placeholder">Tap a generator above</span>
       </div>
     </div>
   </div>
+
+  <div class="freq-section hidden" id="freqSection">
+    <div class="freq-header" id="freqHeader">History</div>
+    <div class="freq-table" id="freqTable"></div>
+  </div>
+
   <div class="controls">
     <div class="control-row">
       <div class="label">
@@ -322,12 +395,11 @@ function parseConfig(text) {
       current = {
         tag: header[1].trim(),
         name: header[2].trim(),
-        repeat: true, // default: repeatable
+        repeat: true,
         outcomes: []
       };
       generators.push(current);
     } else if (current) {
-      // Check for repeat= directive
       const repeatMatch = line.match(/^repeat\s*=\s*(yes|no|true|false)$/i);
       if (repeatMatch) {
         const val = repeatMatch[1].toLowerCase();
@@ -337,9 +409,9 @@ function parseConfig(text) {
       const parts = line.split('|');
       if (parts.length >= 2) {
         const weight = parseInt(parts[parts.length - 1], 10);
-        const text = parts.slice(0, -1).join('|').trim();
-        if (text && !isNaN(weight) && weight > 0) {
-          current.outcomes.push({ text, weight });
+        const txt = parts.slice(0, -1).join('|').trim();
+        if (txt && !isNaN(weight) && weight > 0) {
+          current.outcomes.push({ text: txt, weight });
         }
       }
     }
@@ -351,11 +423,11 @@ function parseConfig(text) {
 let allGenerators = [];
 let tags = [];
 let currentTag = null;
-let activeGenIdx = null; // which generator is currently selected
-// Per-generator no-repeat state (initialized from config defaults)
-const noRepeatState = {};
-// Track remaining outcomes per generator index
-const remaining = {};
+let activeGenIdx = null;
+const noRepeatState = {};  // per-generator
+const remaining = {};      // per-generator remaining pools
+const history = {};        // per-generator: { outcomeText: count }
+let lastPickedChance = null;
 
 // ── Weighted random pick ──
 function weightedPick(outcomes) {
@@ -379,6 +451,10 @@ const tagList = document.getElementById('tagList');
 const genList = document.getElementById('genList');
 const resultBox = document.getElementById('resultBox');
 const resultValue = document.getElementById('resultValue');
+const resultChance = document.getElementById('resultChance');
+const freqSection = document.getElementById('freqSection');
+const freqHeader = document.getElementById('freqHeader');
+const freqTable = document.getElementById('freqTable');
 const noRepeatToggle = document.getElementById('noRepeatToggle');
 const toggleLabel = document.getElementById('toggleLabel');
 const resetBtn = document.getElementById('resetBtn');
@@ -386,7 +462,7 @@ const resetBtn = document.getElementById('resetBtn');
 // ── Render tags ──
 function renderTags() {
   tagList.innerHTML = '';
-  tags.forEach((tag, i) => {
+  tags.forEach((tag) => {
     const count = allGenerators.filter(g => g.tag === tag).length;
     const card = document.createElement('div');
     card.className = 'tag-card animate-in';
@@ -405,10 +481,13 @@ function renderTags() {
   }
 }
 
-// ── Select tag ──
+// ── Select tag (resets frequency tracking) ──
 function selectTag(tag) {
   currentTag = tag;
   activeGenIdx = null;
+  lastPickedChance = null;
+  // Clear all history when switching tags
+  for (const key in history) delete history[key];
   tagScreen.classList.add('hidden');
   genScreen.classList.remove('hidden');
   backBtn.classList.add('visible');
@@ -416,6 +495,9 @@ function selectTag(tag) {
   const gens = allGenerators.filter(g => g.tag === tag);
   headerSub.textContent = gens.length + ' generator' + (gens.length !== 1 ? 's' : '');
   resultValue.innerHTML = '<span class="result-placeholder">Tap a generator above</span>';
+  resultChance.classList.remove('visible');
+  resultChance.textContent = '';
+  freqSection.classList.add('hidden');
   updateToggleUI();
   renderGenerators();
 }
@@ -423,6 +505,8 @@ function selectTag(tag) {
 // ── Back ──
 function goBack() {
   currentTag = null;
+  // Clear history on back
+  for (const key in history) delete history[key];
   genScreen.classList.add('hidden');
   tagScreen.classList.remove('hidden');
   backBtn.classList.remove('visible');
@@ -431,7 +515,7 @@ function goBack() {
 }
 backBtn.addEventListener('click', goBack);
 
-// ── Get noRepeat for a generator (initialize from config default) ──
+// ── Per-generator noRepeat ──
 function isNoRepeat(idx) {
   if (!(idx in noRepeatState)) {
     noRepeatState[idx] = !allGenerators[idx].repeat;
@@ -439,7 +523,7 @@ function isNoRepeat(idx) {
   return noRepeatState[idx];
 }
 
-// ── Update toggle UI to reflect active generator ──
+// ── Update toggle UI ──
 function updateToggleUI() {
   if (activeGenIdx !== null) {
     const nr = isNoRepeat(activeGenIdx);
@@ -461,17 +545,17 @@ function updateToggleUI() {
 function renderGenerators() {
   genList.innerHTML = '';
   const gens = allGenerators.filter(g => g.tag === currentTag);
-  gens.forEach((gen, localIdx) => {
+  gens.forEach((gen) => {
     const globalIdx = allGenerators.indexOf(gen);
     const nr = isNoRepeat(globalIdx);
     const btn = document.createElement('button');
     btn.className = 'gen-btn animate-in';
     if (globalIdx === activeGenIdx) btn.classList.add('active');
-    
+
     const rem = getRemaining(globalIdx);
     const isExhausted = nr && rem.length === 0;
     if (isExhausted) btn.classList.add('exhausted');
-    
+
     let inner = `<div>${gen.name}</div>`;
     if (nr) {
       inner += `<div class="remaining">${rem.length}/${gen.outcomes.length} left · no repeats</div>`;
@@ -479,7 +563,6 @@ function renderGenerators() {
       inner += `<div class="remaining" style="color:var(--accent2)">repeatable</div>`;
     }
     btn.innerHTML = inner;
-    
     btn.addEventListener('click', () => generate(globalIdx));
     genList.appendChild(btn);
   });
@@ -493,54 +576,124 @@ function getRemaining(idx) {
   return remaining[idx];
 }
 
+// ── Calculate chance of an outcome in current pool ──
+function calcChance(idx, outcomeText) {
+  const nr = isNoRepeat(idx);
+  const pool = nr ? getRemaining(idx) : allGenerators[idx].outcomes;
+  const total = pool.reduce((s, o) => s + o.weight, 0);
+  if (total === 0) return 0;
+  // Sum weights of matching outcomes (in case of duplicates)
+  const matchWeight = pool.filter(o => o.text === outcomeText).reduce((s, o) => s + o.weight, 0);
+  return (matchWeight / total) * 100;
+}
+
 // ── Generate ──
 function generate(idx) {
   const gen = allGenerators[idx];
   const nr = isNoRepeat(idx);
   let pool, picked;
-  
+
   activeGenIdx = idx;
   updateToggleUI();
-  
+
+  // Calculate chance BEFORE drawing (from current pool)
   if (nr) {
     pool = getRemaining(idx);
     if (pool.length === 0) return;
     picked = weightedPick(pool);
-    if (picked) {
-      const pi = pool.indexOf(picked);
-      pool.splice(pi, 1);
-      remaining[idx] = pool;
-    }
+    if (!picked) return;
+    // Chance was based on pool before removal
+    const totalBefore = pool.reduce((s, o) => s + o.weight, 0);
+    lastPickedChance = (picked.weight / totalBefore) * 100;
+    // Now remove
+    const pi = pool.indexOf(picked);
+    pool.splice(pi, 1);
+    remaining[idx] = pool;
   } else {
     pool = gen.outcomes;
     picked = weightedPick(pool);
+    if (!picked) return;
+    const total = pool.reduce((s, o) => s + o.weight, 0);
+    lastPickedChance = (picked.weight / total) * 100;
   }
-  
-  if (!picked) return;
-  
-  // Animate result
+
+  // Record in history
+  if (!history[idx]) history[idx] = {};
+  history[idx][picked.text] = (history[idx][picked.text] || 0) + 1;
+
+  // Animate result — longer transition
   resultValue.classList.add('exit');
+  resultChance.classList.remove('visible');
   resultBox.classList.remove('flash');
-  
+
   setTimeout(() => {
     resultValue.textContent = picked.text;
+    resultChance.textContent = lastPickedChance.toFixed(2) + '%';
+
     resultValue.classList.remove('exit');
     resultValue.classList.add('enter');
-    // Force reflow
     void resultBox.offsetWidth;
     resultBox.classList.add('flash');
-    
+
     setTimeout(() => {
       resultValue.classList.remove('enter');
-    }, 20);
-    
+      resultChance.classList.add('visible');
+    }, 30);
+
     setTimeout(() => {
       resultBox.classList.remove('flash');
-    }, 500);
-  }, 160);
-  
-  // Update generator buttons
+    }, 600);
+  }, 280);
+
   renderGenerators();
+  renderFrequency(idx);
+}
+
+// ── Render frequency table ──
+function renderFrequency(idx) {
+  const gen = allGenerators[idx];
+  const hist = history[idx];
+  if (!hist || Object.keys(hist).length === 0) {
+    freqSection.classList.add('hidden');
+    return;
+  }
+
+  freqSection.classList.remove('hidden');
+  freqHeader.textContent = gen.name + ' — History';
+
+  // Total draws for this generator
+  const totalDraws = Object.values(hist).reduce((s, c) => s + c, 0);
+
+  // Total weight (a priori, from original config)
+  const totalWeight = gen.outcomes.reduce((s, o) => s + o.weight, 0);
+
+  // Find max count for bar scaling
+  const maxCount = Math.max(...Object.values(hist));
+
+  freqTable.innerHTML = '';
+
+  // Show all outcomes that have been drawn, sorted by count descending
+  const entries = Object.entries(hist).sort((a, b) => b[1] - a[1]);
+
+  entries.forEach(([text, count]) => {
+    // Expected frequency: a priori weight / total weight
+    const outcomeWeight = gen.outcomes
+      .filter(o => o.text === text)
+      .reduce((s, o) => s + o.weight, 0);
+    const expectedPct = (outcomeWeight / totalWeight) * 100;
+    const actualPct = totalDraws > 0 ? (count / totalDraws) * 100 : 0;
+    const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0;
+
+    const row = document.createElement('div');
+    row.className = 'freq-row';
+    row.innerHTML = `
+      <div class="freq-outcome">${text}</div>
+      <div class="freq-bar-bg"><div class="freq-bar" style="width:${barWidth}%"></div></div>
+      <div class="freq-actual">${count}</div>
+      <div class="freq-expected">${actualPct.toFixed(2)}% <span style="color:var(--text-dim);opacity:0.5">/ ${expectedPct.toFixed(2)}%</span></div>
+    `;
+    freqTable.appendChild(row);
+  });
 }
 
 // ── Toggle no-repeat for active generator ──
@@ -553,13 +706,17 @@ noRepeatToggle.addEventListener('click', () => {
 
 // ── Reset ──
 resetBtn.addEventListener('click', () => {
-  // Clear all remaining pools and reset repeat states to config defaults
   for (const key in remaining) delete remaining[key];
   for (const key in noRepeatState) delete noRepeatState[key];
+  for (const key in history) delete history[key];
   activeGenIdx = null;
+  lastPickedChance = null;
+  resultValue.innerHTML = '<span class="result-placeholder">Tap a generator above</span>';
+  resultChance.classList.remove('visible');
+  resultChance.textContent = '';
+  freqSection.classList.add('hidden');
   updateToggleUI();
   if (currentTag) renderGenerators();
-  // Flash feedback
   resetBtn.textContent = '✓ Reset!';
   resetBtn.style.borderColor = 'var(--success)';
   resetBtn.style.color = 'var(--success)';
@@ -576,7 +733,6 @@ async function init() {
     const resp = await fetch('generators.txt');
     const text = await resp.text();
     allGenerators = parseConfig(text);
-    // Extract unique tags in order
     const seen = new Set();
     for (const g of allGenerators) {
       if (!seen.has(g.tag)) {
@@ -594,8 +750,6 @@ async function init() {
 }
 
 init();
-
-// Register service worker
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js');
 }

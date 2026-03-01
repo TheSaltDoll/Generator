@@ -130,3 +130,10 @@ Windows|1
 Norris|1
 Palmer|1
 Dr. Fuchs|1
+
+[Demo:Player Ordering]
+pair=Player Names
+1st|1
+2nd|2
+3rd|3
+4th|4

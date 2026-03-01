@@ -48,8 +48,7 @@ body{
   padding:16px 20px 12px;
   display:flex;align-items:center;gap:12px;
   border-bottom:1px solid var(--border);
-  flex-shrink:0;
-  background:var(--bg);
+  flex-shrink:0;background:var(--bg);
   position:relative;z-index:10;
 }
 .header .back-btn{
@@ -65,8 +64,7 @@ body{
 .header h1{
   font-family:'JetBrains Mono',monospace;
   font-size:18px;font-weight:700;
-  letter-spacing:-0.5px;
-  color:var(--accent2);
+  letter-spacing:-0.5px;color:var(--accent2);
 }
 .header .subtitle{
   font-size:12px;color:var(--text-dim);
@@ -82,24 +80,20 @@ body{
 }
 .screen.hidden{display:none}
 
-/* ── Generator screen: flex column layout ── */
 #genScreen{
   display:flex;flex-direction:column;
   padding:0;overflow:hidden;
 }
 #genScreen.hidden{display:none}
 
-/* Scrollable upper area */
 .gen-scroll{
   flex:1;overflow-y:auto;overflow-x:hidden;
   -webkit-overflow-scrolling:touch;
   padding:16px 20px 16px;
 }
 
-/* Fixed bottom result panel */
 .result-panel{
-  flex-shrink:0;
-  background:var(--bg);
+  flex-shrink:0;background:var(--bg);
   border-top:1px solid var(--border);
   padding:14px 20px;
   padding-bottom:calc(14px + var(--safe-bottom));
@@ -108,237 +102,200 @@ body{
 /* ── Tag list ── */
 .tag-list{display:flex;flex-direction:column;gap:10px}
 .tag-card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:18px 20px;
-  cursor:pointer;
-  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px 20px;
+  cursor:pointer;display:flex;align-items:center;justify-content:space-between;
   transition:transform .15s,border-color .2s,box-shadow .2s;
 }
-.tag-card:active{
-  transform:scale(0.97);
-  border-color:var(--accent);
-  box-shadow:0 0 20px var(--accent-glow);
-}
-.tag-card .tag-name{
-  font-weight:600;font-size:17px;
-  letter-spacing:-0.3px;
-}
+.tag-card:active{transform:scale(0.97);border-color:var(--accent);box-shadow:0 0 20px var(--accent-glow)}
+.tag-card .tag-name{font-weight:600;font-size:17px;letter-spacing:-0.3px}
 .tag-card .tag-count{
-  font-family:'JetBrains Mono',monospace;
-  font-size:13px;color:var(--text-dim);
-  background:var(--surface2);
-  padding:4px 10px;border-radius:8px;
+  font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text-dim);
+  background:var(--surface2);padding:4px 10px;border-radius:8px;
 }
 
 /* ── Generator buttons ── */
 .gen-list{display:flex;flex-direction:column;gap:10px}
 .gen-btn{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:16px 20px;
-  cursor:pointer;color:var(--text);
-  font-family:'Outfit',sans-serif;
-  font-size:16px;font-weight:500;
-  text-align:left;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px 20px;
+  cursor:pointer;color:var(--text);font-family:'Outfit',sans-serif;
+  font-size:16px;font-weight:500;text-align:left;
   transition:transform .15s,border-color .2s,box-shadow .2s;
   position:relative;overflow:hidden;
 }
-.gen-btn:active{
-  transform:scale(0.97);
-  border-color:var(--accent);
-  box-shadow:0 0 20px var(--accent-glow);
-}
-.gen-btn .remaining{
-  font-family:'JetBrains Mono',monospace;
-  font-size:11px;color:var(--text-dim);
-  margin-top:4px;
-}
-.gen-btn.exhausted{
-  opacity:0.35;pointer-events:none;
-  border-style:dashed;
-}
-.gen-btn.active{
-  border-color:var(--accent);
-  box-shadow:0 0 12px var(--accent-glow);
-}
+.gen-btn:active{transform:scale(0.97);border-color:var(--accent);box-shadow:0 0 20px var(--accent-glow)}
+.gen-btn .remaining{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);margin-top:4px}
+.gen-btn.exhausted{opacity:0.35;pointer-events:none;border-style:dashed}
+.gen-btn.active{border-color:var(--accent);box-shadow:0 0 12px var(--accent-glow)}
 
-/* ── Result display (now inside fixed bottom panel) ── */
+/* ── Result display ── */
 .result-box{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:20px 20px;
-  width:100%;
-  text-align:center;
-  position:relative;
-  overflow:hidden;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;width:100%;
+  text-align:center;position:relative;overflow:hidden;
 }
 .result-box::before{
   content:'';position:absolute;inset:0;
   background:linear-gradient(135deg,var(--accent-glow),transparent 60%);
-  opacity:0;transition:opacity .5s;
-  pointer-events:none;
+  opacity:0;transition:opacity .5s;pointer-events:none;
 }
 .result-box.flash::before{opacity:1}
-.result-top-row{
-  display:flex;align-items:center;justify-content:center;
-  margin-bottom:8px;
-  position:relative;
-}
-.result-label{
-  font-size:11px;text-transform:uppercase;
-  letter-spacing:1.5px;color:var(--text-dim);
-  font-family:'JetBrains Mono',monospace;
-}
+.result-top-row{display:flex;align-items:center;justify-content:center;margin-bottom:8px;position:relative}
+.result-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);font-family:'JetBrains Mono',monospace}
 .result-chance{
-  position:absolute;right:0;top:0;
-  font-family:'JetBrains Mono',monospace;
-  font-size:11px;
-  color:var(--text-dim);
-  opacity:0;
-  transition:opacity .3s;
+  position:absolute;right:0;top:0;font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--text-dim);opacity:0;transition:opacity .3s;
 }
 .result-chance.visible{opacity:1}
-.result-value{
-  font-size:24px;font-weight:700;
-  letter-spacing:-0.5px;
-  line-height:1.3;
-  transition:opacity .25s ease,transform .25s ease;
-}
+.result-value{font-size:24px;font-weight:700;letter-spacing:-0.5px;line-height:1.3;transition:opacity .25s ease,transform .25s ease}
 .result-value.exit{opacity:0;transform:translateY(-16px) scale(0.95)}
 .result-value.enter{opacity:0;transform:translateY(16px) scale(0.95)}
-.result-placeholder{
-  color:var(--text-dim);font-size:15px;
-  font-style:italic;
-}
+.result-placeholder{color:var(--text-dim);font-size:15px;font-style:italic}
 
-/* ── Frequency tracker (in scroll area) ── */
-.freq-section{
-  margin-top:16px;
-}
+/* ── Frequency tracker ── */
+.freq-section{margin-top:16px}
 .freq-section.hidden{display:none}
-.freq-header{
-  font-family:'JetBrains Mono',monospace;
-  font-size:11px;text-transform:uppercase;
-  letter-spacing:1.5px;color:var(--text-dim);
-  margin-bottom:8px;
-  padding:0 4px;
-}
-.freq-table{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  overflow:hidden;
-}
-.freq-row{
-  display:flex;align-items:center;
-  padding:10px 14px;
-  gap:10px;
-  border-bottom:1px solid var(--border);
-  animation:fadeSlideIn .25s ease both;
-}
+.freq-header{font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:8px;padding:0 4px}
+.freq-table{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.freq-row{display:flex;align-items:center;padding:10px 14px;gap:10px;border-bottom:1px solid var(--border);animation:fadeSlideIn .25s ease both}
 .freq-row:last-child{border-bottom:none}
-.freq-outcome{
-  flex:1;font-size:13px;font-weight:500;
-  min-width:0;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-}
-.freq-actual{
-  font-family:'JetBrains Mono',monospace;
-  font-size:12px;font-weight:600;
-  color:var(--accent2);
-  min-width:28px;text-align:right;
-}
-.freq-expected{
-  font-family:'JetBrains Mono',monospace;
-  font-size:11px;
-  color:var(--text-dim);
-  min-width:65px;text-align:right;
-}
-.freq-bar-bg{
-  width:60px;height:6px;
-  background:var(--surface2);
-  border-radius:3px;
-  overflow:hidden;
-  flex-shrink:0;
-}
-.freq-bar{
-  height:100%;
-  background:var(--accent);
-  border-radius:3px;
-  transition:width .3s ease;
-}
+.freq-outcome{flex:1;font-size:13px;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.freq-actual{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--accent2);min-width:28px;text-align:right}
+.freq-expected{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);min-width:65px;text-align:right}
+.freq-bar-bg{width:60px;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;flex-shrink:0}
+.freq-bar{height:100%;background:var(--accent);border-radius:3px;transition:width .3s ease}
 
-/* ── Controls (in scroll area) ── */
-.controls{
-  margin-top:16px;
-  display:flex;flex-direction:column;gap:14px;
+/* ── Pair results (in scroll area) ── */
+.pair-results{margin-top:16px}
+.pair-results.hidden{display:none}
+.pair-results-header{
+  font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;
+  letter-spacing:1.5px;color:var(--text-dim);margin-bottom:8px;padding:0 4px;
+  display:flex;align-items:center;justify-content:space-between;
 }
+.pair-reshuffle{
+  font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;
+  color:var(--accent);background:none;border:1px solid var(--accent);
+  border-radius:8px;padding:4px 12px;cursor:pointer;
+  text-transform:none;letter-spacing:0;
+  transition:background .2s,color .2s;
+}
+.pair-reshuffle:active{background:var(--accent);color:#fff}
+.pair-table{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.pair-row{
+  display:flex;align-items:center;padding:12px 16px;gap:12px;
+  border-bottom:1px solid var(--border);animation:fadeSlideIn .25s ease both;
+}
+.pair-row:last-child{border-bottom:none}
+.pair-slot{
+  font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;
+  color:var(--accent2);min-width:60px;flex-shrink:0;
+}
+.pair-arrow{color:var(--text-dim);font-size:14px;flex-shrink:0}
+.pair-name{font-size:15px;font-weight:500;text-align:left;flex:1}
+
+/* ── Pair input modal ── */
+.pair-modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);
+  z-index:100;display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .25s ease;
+}
+.pair-modal-overlay.visible{opacity:1;pointer-events:auto}
+.pair-modal{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:20px 20px 0 0;
+  width:100%;max-width:500px;
+  max-height:85vh;
+  display:flex;flex-direction:column;
+  transform:translateY(100%);
+  transition:transform .3s cubic-bezier(.4,.0,.2,1);
+  padding-bottom:var(--safe-bottom);
+}
+.pair-modal-overlay.visible .pair-modal{transform:translateY(0)}
+.pair-modal-header{
+  padding:20px 20px 12px;flex-shrink:0;
+  border-bottom:1px solid var(--border);
+}
+.pair-modal-title{font-size:18px;font-weight:700;margin-bottom:4px}
+.pair-modal-subtitle{font-size:13px;color:var(--text-dim)}
+.pair-modal-body{
+  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:16px 20px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.pair-input-row{display:flex;align-items:center;gap:10px}
+.pair-input-num{
+  font-family:'JetBrains Mono',monospace;font-size:13px;
+  color:var(--text-dim);min-width:24px;text-align:right;
+}
+.pair-input{
+  flex:1;background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:12px 14px;
+  color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;
+  outline:none;transition:border-color .2s;
+}
+.pair-input:focus{border-color:var(--accent)}
+.pair-input::placeholder{color:var(--text-dim);opacity:0.5}
+.pair-modal-footer{
+  padding:12px 20px 16px;flex-shrink:0;
+  border-top:1px solid var(--border);
+  display:flex;gap:10px;
+}
+.pair-cancel-btn{
+  flex:1;background:var(--surface);border:1px solid var(--border);
+  color:var(--text);font-family:'Outfit',sans-serif;
+  font-size:15px;font-weight:600;padding:14px;border-radius:12px;cursor:pointer;
+  transition:background .2s;
+}
+.pair-cancel-btn:active{background:var(--surface2)}
+.pair-shuffle-btn{
+  flex:2;background:var(--accent);border:none;
+  color:#fff;font-family:'Outfit',sans-serif;
+  font-size:15px;font-weight:600;padding:14px;border-radius:12px;cursor:pointer;
+  transition:opacity .2s;
+}
+.pair-shuffle-btn:active{opacity:0.8}
+.pair-shuffle-btn:disabled{opacity:0.4;cursor:default}
+
+/* ── Controls ── */
+.controls{margin-top:16px;display:flex;flex-direction:column;gap:14px}
 .control-row{
   display:flex;align-items:center;justify-content:space-between;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:14px 18px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px 18px;
 }
-.control-row .label{
-  font-size:14px;font-weight:500;
-  color:var(--text);
-}
-.control-row .label small{
-  display:block;font-size:11px;
-  color:var(--text-dim);font-weight:400;
-  margin-top:2px;
-}
-
-/* Toggle switch */
+.control-row .label{font-size:14px;font-weight:500;color:var(--text)}
+.control-row .label small{display:block;font-size:11px;color:var(--text-dim);font-weight:400;margin-top:2px}
 .toggle{
-  width:50px;height:28px;
-  background:var(--surface2);
-  border:1px solid var(--border);
-  border-radius:14px;
-  position:relative;cursor:pointer;
-  transition:background .25s,border-color .25s;
-  flex-shrink:0;
+  width:50px;height:28px;background:var(--surface2);border:1px solid var(--border);
+  border-radius:14px;position:relative;cursor:pointer;
+  transition:background .25s,border-color .25s;flex-shrink:0;
 }
 .toggle.on{background:var(--accent);border-color:var(--accent)}
 .toggle .knob{
-  width:22px;height:22px;
-  background:#fff;border-radius:50%;
+  width:22px;height:22px;background:#fff;border-radius:50%;
   position:absolute;top:2px;left:2px;
   transition:transform .25s cubic-bezier(.4,.0,.2,1);
   box-shadow:0 1px 4px #0003;
 }
 .toggle.on .knob{transform:translateX(22px)}
-
-/* Reset button */
 .reset-btn{
-  background:none;border:1px solid var(--danger);
-  color:var(--danger);
-  font-family:'Outfit',sans-serif;
-  font-size:14px;font-weight:600;
-  padding:10px 20px;border-radius:10px;
-  cursor:pointer;
+  background:none;border:1px solid var(--danger);color:var(--danger);
+  font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;
+  padding:10px 20px;border-radius:10px;cursor:pointer;
   transition:background .2s,color .2s;
 }
 .reset-btn:active{background:var(--danger);color:#fff}
 
 /* ── Empty state ── */
-.empty{
-  text-align:center;padding:60px 20px;
-  color:var(--text-dim);
-}
+.empty{text-align:center;padding:60px 20px;color:var(--text-dim)}
 .empty .icon{font-size:48px;margin-bottom:16px;opacity:0.5}
 .empty p{font-size:14px;line-height:1.6}
 
 /* ── Animations ── */
-@keyframes fadeSlideIn{
-  from{opacity:0;transform:translateY(16px)}
-  to{opacity:1;transform:translateY(0)}
-}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 .animate-in{animation:fadeSlideIn .3s ease both}
 .animate-in:nth-child(1){animation-delay:0s}
 .animate-in:nth-child(2){animation-delay:.04s}
@@ -350,7 +307,6 @@ body{
 .animate-in:nth-child(8){animation-delay:.28s}
 .animate-in:nth-child(9){animation-delay:.32s}
 .animate-in:nth-child(10){animation-delay:.36s}
-
 ::-webkit-scrollbar{width:0;height:0}
 </style>
 </head>
@@ -367,10 +323,19 @@ body{
   <div class="tag-list" id="tagList"></div>
 </div>
 
-<!-- Generator screen: scroll area + fixed bottom result -->
+<!-- Generator screen -->
 <div id="genScreen" class="hidden">
   <div class="gen-scroll">
     <div class="gen-list" id="genList"></div>
+
+    <!-- Pair results (shown in scroll area) -->
+    <div class="pair-results hidden" id="pairResults">
+      <div class="pair-results-header">
+        <span id="pairResultsTitle">Pairings</span>
+        <button class="pair-reshuffle" id="pairReshuffle">Reshuffle</button>
+      </div>
+      <div class="pair-table" id="pairTable"></div>
+    </div>
 
     <div class="freq-section hidden" id="freqSection">
       <div class="freq-header" id="freqHeader">History</div>
@@ -406,6 +371,21 @@ body{
   </div>
 </div>
 
+<!-- Pair input modal -->
+<div class="pair-modal-overlay" id="pairOverlay">
+  <div class="pair-modal">
+    <div class="pair-modal-header">
+      <div class="pair-modal-title" id="pairModalTitle">Enter Items</div>
+      <div class="pair-modal-subtitle" id="pairModalSubtitle"></div>
+    </div>
+    <div class="pair-modal-body" id="pairModalBody"></div>
+    <div class="pair-modal-footer">
+      <button class="pair-cancel-btn" id="pairCancelBtn">Cancel</button>
+      <button class="pair-shuffle-btn" id="pairShuffleBtn">Shuffle & Assign</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── Config parser ──
 function parseConfig(text) {
@@ -420,22 +400,42 @@ function parseConfig(text) {
         tag: header[1].trim(),
         name: header[2].trim(),
         repeat: true,
+        pairMode: false,
+        pairLabel: '',
         outcomes: []
       };
       generators.push(current);
     } else if (current) {
+      // Check for repeat= directive
       const repeatMatch = line.match(/^repeat\s*=\s*(yes|no|true|false)$/i);
       if (repeatMatch) {
         const val = repeatMatch[1].toLowerCase();
         current.repeat = (val === 'yes' || val === 'true');
         continue;
       }
-      const parts = line.split('|');
-      if (parts.length >= 2) {
-        const weight = parseInt(parts[parts.length - 1], 10);
-        const txt = parts.slice(0, -1).join('|').trim();
-        if (txt && !isNaN(weight) && weight > 0) {
-          current.outcomes.push({ text: txt, weight });
+      // Check for pair= directive
+      const pairMatch = line.match(/^pair\s*=\s*(.+)$/i);
+      if (pairMatch) {
+        current.pairMode = true;
+        current.pairLabel = pairMatch[1].trim();
+        continue;
+      }
+      // Pair mode: lines are just slot labels (with optional |sortOrder)
+      if (current.pairMode) {
+        const parts = line.split('|');
+        const slotText = parts[0].trim();
+        const sortOrder = parts.length >= 2 ? parseInt(parts[1], 10) : current.outcomes.length + 1;
+        if (slotText) {
+          current.outcomes.push({ text: slotText, weight: isNaN(sortOrder) ? current.outcomes.length + 1 : sortOrder });
+        }
+      } else {
+        const parts = line.split('|');
+        if (parts.length >= 2) {
+          const weight = parseInt(parts[parts.length - 1], 10);
+          const txt = parts.slice(0, -1).join('|').trim();
+          if (txt && !isNaN(weight) && weight > 0) {
+            current.outcomes.push({ text: txt, weight });
+          }
         }
       }
     }
@@ -452,6 +452,9 @@ const noRepeatState = {};
 const remaining = {};
 const history = {};
 let lastPickedChance = null;
+// Pair mode state
+let activePairIdx = null;
+let lastPairInputs = [];
 
 // ── Weighted random pick ──
 function weightedPick(outcomes) {
@@ -463,6 +466,16 @@ function weightedPick(outcomes) {
     if (r <= 0) return o;
   }
   return outcomes[outcomes.length - 1];
+}
+
+// ── Fisher-Yates shuffle ──
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 // ── DOM refs ──
@@ -479,6 +492,16 @@ const resultChance = document.getElementById('resultChance');
 const freqSection = document.getElementById('freqSection');
 const freqHeader = document.getElementById('freqHeader');
 const freqTable = document.getElementById('freqTable');
+const pairResultsEl = document.getElementById('pairResults');
+const pairResultsTitle = document.getElementById('pairResultsTitle');
+const pairReshuffle = document.getElementById('pairReshuffle');
+const pairTable = document.getElementById('pairTable');
+const pairOverlay = document.getElementById('pairOverlay');
+const pairModalTitle = document.getElementById('pairModalTitle');
+const pairModalSubtitle = document.getElementById('pairModalSubtitle');
+const pairModalBody = document.getElementById('pairModalBody');
+const pairCancelBtn = document.getElementById('pairCancelBtn');
+const pairShuffleBtn = document.getElementById('pairShuffleBtn');
 const noRepeatToggle = document.getElementById('noRepeatToggle');
 const toggleLabel = document.getElementById('toggleLabel');
 const resetBtn = document.getElementById('resetBtn');
@@ -509,6 +532,8 @@ function renderTags() {
 function selectTag(tag) {
   currentTag = tag;
   activeGenIdx = null;
+  activePairIdx = null;
+  lastPairInputs = [];
   lastPickedChance = null;
   for (const key in history) delete history[key];
   tagScreen.classList.add('hidden');
@@ -521,6 +546,7 @@ function selectTag(tag) {
   resultChance.classList.remove('visible');
   resultChance.textContent = '';
   freqSection.classList.add('hidden');
+  pairResultsEl.classList.add('hidden');
   updateToggleUI();
   renderGenerators();
 }
@@ -528,6 +554,8 @@ function selectTag(tag) {
 // ── Back ──
 function goBack() {
   currentTag = null;
+  activePairIdx = null;
+  lastPairInputs = [];
   for (const key in history) delete history[key];
   genScreen.classList.add('hidden');
   tagScreen.classList.remove('hidden');
@@ -547,7 +575,7 @@ function isNoRepeat(idx) {
 
 // ── Update toggle UI ──
 function updateToggleUI() {
-  if (activeGenIdx !== null) {
+  if (activeGenIdx !== null && !allGenerators[activeGenIdx].pairMode) {
     const nr = isNoRepeat(activeGenIdx);
     noRepeatToggle.classList.toggle('on', nr);
     noRepeatToggle.setAttribute('aria-checked', nr);
@@ -559,7 +587,8 @@ function updateToggleUI() {
     noRepeatToggle.setAttribute('aria-checked', 'false');
     noRepeatToggle.style.opacity = '0.4';
     noRepeatToggle.style.pointerEvents = 'none';
-    toggleLabel.textContent = 'Select a generator';
+    toggleLabel.textContent = activeGenIdx !== null && allGenerators[activeGenIdx].pairMode
+      ? 'N/A for pair mode' : 'Select a generator';
   }
 }
 
@@ -569,23 +598,28 @@ function renderGenerators() {
   const gens = allGenerators.filter(g => g.tag === currentTag);
   gens.forEach((gen) => {
     const globalIdx = allGenerators.indexOf(gen);
-    const nr = isNoRepeat(globalIdx);
     const btn = document.createElement('button');
     btn.className = 'gen-btn animate-in';
-    if (globalIdx === activeGenIdx) btn.classList.add('active');
-
-    const rem = getRemaining(globalIdx);
-    const isExhausted = nr && rem.length === 0;
-    if (isExhausted) btn.classList.add('exhausted');
+    if (globalIdx === activeGenIdx || globalIdx === activePairIdx) btn.classList.add('active');
 
     let inner = `<div>${gen.name}</div>`;
-    if (nr) {
-      inner += `<div class="remaining">${rem.length}/${gen.outcomes.length} left · no repeats</div>`;
+    if (gen.pairMode) {
+      inner += `<div class="remaining" style="color:var(--accent)">pair · ${gen.outcomes.length} slots · ${gen.pairLabel}</div>`;
+      btn.innerHTML = inner;
+      btn.addEventListener('click', () => openPairModal(globalIdx));
     } else {
-      inner += `<div class="remaining" style="color:var(--accent2)">repeatable</div>`;
+      const nr = isNoRepeat(globalIdx);
+      const rem = getRemaining(globalIdx);
+      const isExhausted = nr && rem.length === 0;
+      if (isExhausted) btn.classList.add('exhausted');
+      if (nr) {
+        inner += `<div class="remaining">${rem.length}/${gen.outcomes.length} left · no repeats</div>`;
+      } else {
+        inner += `<div class="remaining" style="color:var(--accent2)">repeatable</div>`;
+      }
+      btn.innerHTML = inner;
+      btn.addEventListener('click', () => generate(globalIdx));
     }
-    btn.innerHTML = inner;
-    btn.addEventListener('click', () => generate(globalIdx));
     genList.appendChild(btn);
   });
 }
@@ -598,13 +632,15 @@ function getRemaining(idx) {
   return remaining[idx];
 }
 
-// ── Generate ──
+// ── Generate (standard) ──
 function generate(idx) {
   const gen = allGenerators[idx];
   const nr = isNoRepeat(idx);
   let pool, picked;
 
   activeGenIdx = idx;
+  activePairIdx = null;
+  pairResultsEl.classList.add('hidden');
   updateToggleUI();
 
   if (nr) {
@@ -628,7 +664,6 @@ function generate(idx) {
   if (!history[idx]) history[idx] = {};
   history[idx][picked.text] = (history[idx][picked.text] || 0) + 1;
 
-  // Animate result
   resultValue.classList.add('exit');
   resultChance.classList.remove('visible');
   resultBox.classList.remove('flash');
@@ -636,20 +671,12 @@ function generate(idx) {
   setTimeout(() => {
     resultValue.textContent = picked.text;
     resultChance.textContent = lastPickedChance.toFixed(2) + '%';
-
     resultValue.classList.remove('exit');
     resultValue.classList.add('enter');
     void resultBox.offsetWidth;
     resultBox.classList.add('flash');
-
-    setTimeout(() => {
-      resultValue.classList.remove('enter');
-      resultChance.classList.add('visible');
-    }, 30);
-
-    setTimeout(() => {
-      resultBox.classList.remove('flash');
-    }, 600);
+    setTimeout(() => { resultValue.classList.remove('enter'); resultChance.classList.add('visible'); }, 30);
+    setTimeout(() => { resultBox.classList.remove('flash'); }, 600);
   }, 280);
 
   renderGenerators();
@@ -660,29 +687,21 @@ function generate(idx) {
 function renderFrequency(idx) {
   const gen = allGenerators[idx];
   const hist = history[idx];
-  if (!hist || Object.keys(hist).length === 0) {
-    freqSection.classList.add('hidden');
-    return;
-  }
+  if (!hist || Object.keys(hist).length === 0) { freqSection.classList.add('hidden'); return; }
 
   freqSection.classList.remove('hidden');
   freqHeader.textContent = gen.name + ' — History';
-
   const totalDraws = Object.values(hist).reduce((s, c) => s + c, 0);
   const totalWeight = gen.outcomes.reduce((s, o) => s + o.weight, 0);
   const maxCount = Math.max(...Object.values(hist));
-
   freqTable.innerHTML = '';
   const entries = Object.entries(hist).sort((a, b) => b[1] - a[1]);
 
   entries.forEach(([text, count]) => {
-    const outcomeWeight = gen.outcomes
-      .filter(o => o.text === text)
-      .reduce((s, o) => s + o.weight, 0);
+    const outcomeWeight = gen.outcomes.filter(o => o.text === text).reduce((s, o) => s + o.weight, 0);
     const expectedPct = (outcomeWeight / totalWeight) * 100;
     const actualPct = totalDraws > 0 ? (count / totalDraws) * 100 : 0;
     const barWidth = maxCount > 0 ? (count / maxCount) * 100 : 0;
-
     const row = document.createElement('div');
     row.className = 'freq-row';
     row.innerHTML = `
@@ -695,9 +714,144 @@ function renderFrequency(idx) {
   });
 }
 
+// ════════════════════════════════════════
+// ── PAIR MODE ──
+// ════════════════════════════════════════
+
+function openPairModal(idx) {
+  const gen = allGenerators[idx];
+  activePairIdx = idx;
+  activeGenIdx = null;
+  freqSection.classList.add('hidden');
+  updateToggleUI();
+  renderGenerators();
+
+  const count = gen.outcomes.length;
+  pairModalTitle.textContent = gen.name;
+  pairModalSubtitle.textContent = `Enter ${count} ${gen.pairLabel}`;
+  pairModalBody.innerHTML = '';
+
+  for (let i = 0; i < count; i++) {
+    const row = document.createElement('div');
+    row.className = 'pair-input-row';
+    const prevValue = lastPairInputs[i] || '';
+    row.innerHTML = `
+      <span class="pair-input-num">${i + 1}.</span>
+      <input class="pair-input" type="text" placeholder="${gen.pairLabel.replace(/s$/i, '')} ${i + 1}"
+             value="${prevValue}" autocomplete="off" autocorrect="off" spellcheck="false">
+    `;
+    pairModalBody.appendChild(row);
+  }
+
+  updateShuffleBtn();
+  pairOverlay.classList.add('visible');
+
+  // Focus first empty input
+  setTimeout(() => {
+    const inputs = pairModalBody.querySelectorAll('.pair-input');
+    for (const inp of inputs) {
+      if (!inp.value.trim()) { inp.focus(); break; }
+    }
+    if ([...inputs].every(inp => inp.value.trim())) inputs[0]?.focus();
+  }, 350);
+}
+
+function updateShuffleBtn() {
+  const inputs = pairModalBody.querySelectorAll('.pair-input');
+  const filled = [...inputs].filter(inp => inp.value.trim()).length;
+  pairShuffleBtn.disabled = filled < inputs.length;
+}
+
+pairModalBody.addEventListener('input', updateShuffleBtn);
+
+// Allow Enter to move to next input or submit
+pairModalBody.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const inputs = [...pairModalBody.querySelectorAll('.pair-input')];
+    const currentIdx = inputs.indexOf(e.target);
+    if (currentIdx < inputs.length - 1) {
+      inputs[currentIdx + 1].focus();
+    } else if (!pairShuffleBtn.disabled) {
+      executePairShuffle();
+    }
+  }
+});
+
+pairCancelBtn.addEventListener('click', () => {
+  pairOverlay.classList.remove('visible');
+});
+
+pairShuffleBtn.addEventListener('click', executePairShuffle);
+
+function executePairShuffle() {
+  const gen = allGenerators[activePairIdx];
+  const inputs = [...pairModalBody.querySelectorAll('.pair-input')];
+  const names = inputs.map(inp => inp.value.trim());
+
+  if (names.some(n => !n)) return;
+
+  lastPairInputs = [...names];
+  pairOverlay.classList.remove('visible');
+
+  // Shuffle names and pair with slots (sorted by weight/sort order)
+  const slots = [...gen.outcomes].sort((a, b) => a.weight - b.weight);
+  const shuffled = shuffle(names);
+
+  // Show result in bottom panel
+  resultChance.classList.remove('visible');
+  resultChance.textContent = '';
+  resultValue.classList.add('exit');
+  resultBox.classList.remove('flash');
+
+  setTimeout(() => {
+    resultValue.textContent = `${slots.length} pairs assigned`;
+    resultValue.classList.remove('exit');
+    resultValue.classList.add('enter');
+    void resultBox.offsetWidth;
+    resultBox.classList.add('flash');
+    setTimeout(() => { resultValue.classList.remove('enter'); }, 30);
+    setTimeout(() => { resultBox.classList.remove('flash'); }, 600);
+  }, 280);
+
+  // Show pair results in scroll area
+  renderPairResults(gen, slots, shuffled);
+}
+
+function renderPairResults(gen, slots, shuffledNames) {
+  pairResultsEl.classList.remove('hidden');
+  pairResultsTitle.textContent = gen.name;
+  pairTable.innerHTML = '';
+
+  slots.forEach((slot, i) => {
+    const row = document.createElement('div');
+    row.className = 'pair-row';
+    row.style.animationDelay = `${i * 0.06}s`;
+    row.innerHTML = `
+      <div class="pair-slot">${slot.text}</div>
+      <div class="pair-arrow">=</div>
+      <div class="pair-name">${shuffledNames[i]}</div>
+    `;
+    pairTable.appendChild(row);
+  });
+
+  // Scroll to show results
+  const scroll = document.querySelector('.gen-scroll');
+  setTimeout(() => {
+    pairResultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+
+  // Store for reshuffle
+  pairReshuffle.onclick = () => {
+    const reshuffled = shuffle(lastPairInputs);
+    renderPairResults(gen, slots, reshuffled);
+  };
+}
+
 // ── Toggle no-repeat ──
 noRepeatToggle.addEventListener('click', () => {
   if (activeGenIdx === null) return;
+  if (allGenerators[activeGenIdx].pairMode) return;
   noRepeatState[activeGenIdx] = !isNoRepeat(activeGenIdx);
   updateToggleUI();
   if (currentTag) renderGenerators();
@@ -709,11 +863,14 @@ resetBtn.addEventListener('click', () => {
   for (const key in noRepeatState) delete noRepeatState[key];
   for (const key in history) delete history[key];
   activeGenIdx = null;
+  activePairIdx = null;
+  lastPairInputs = [];
   lastPickedChance = null;
   resultValue.innerHTML = '<span class="result-placeholder">Tap a generator above</span>';
   resultChance.classList.remove('visible');
   resultChance.textContent = '';
   freqSection.classList.add('hidden');
+  pairResultsEl.classList.add('hidden');
   updateToggleUI();
   if (currentTag) renderGenerators();
   resetBtn.textContent = '✓ Reset!';
@@ -734,10 +891,7 @@ async function init() {
     allGenerators = parseConfig(text);
     const seen = new Set();
     for (const g of allGenerators) {
-      if (!seen.has(g.tag)) {
-        seen.add(g.tag);
-        tags.push(g.tag);
-      }
+      if (!seen.has(g.tag)) { seen.add(g.tag); tags.push(g.tag); }
     }
     renderTags();
   } catch (e) {
@@ -749,9 +903,7 @@ async function init() {
 }
 
 init();
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js');
-}
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
 </script>
 </body>
 </html>

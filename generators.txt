@@ -73,6 +73,42 @@ repeat=yes
 3|5
 4|5
 
+[Nemesis:Attack-Adult]
+repeat=yes
+Scratch: 1 Light Wound and Contamination|4
+Claw Attack: 2 Light Wounds and Contamination|4
+Bite: 1 Serious Wound|4
+Miss|7
+Slime: Contamination|1
+
+[Nemesis:Attack-Queen]
+repeat=yes
+Scratch: 1 Light Wound and Contamination|4
+Claw Attack: 2 Light Wounds and Contamination|4
+Bite: 1 Serious Wound|4
+Frenzy: All in room get 1 Serious Wound|2
+Tail Attack: If had 1 or more Serious Wounds, Die; else 1 Serious Wound|2
+Summon: Add 1 Intruder from bag to combat, no surprise attack|1
+Miss|2
+Slime: Contamination|1
+
+[Nemesis:Attack-Breeder]
+repeat=yes
+Scratch: 1 Light Wound and Contamination|4
+Claw Attack: 2 Light Wounds and Contamination|4
+Bite: 1 Serious Wound|4
+Frenzy: All in room get 1 Serious Wound|2
+Miss|5
+Slime: Contamination|1
+
+[Nemesis:Attack-Creeper]
+repeat=yes
+Scratch: 1 Light Wound and Contamination|4
+Transformation: Turn into Breeder; If have 0 cards it attacks|2
+Summon: Add 1 Intruder from bag to combat, no surprise attack|1
+Miss|12
+Slime: Contamination|1
+
 [Hegemony Class:Pick Class]
 repeat=no
 Working Class|1
